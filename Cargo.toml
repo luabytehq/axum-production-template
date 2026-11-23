@@ -1,0 +1,63 @@
+[package]
+name = "axum-production-template"
+version = "0.1.0"
+edition = "2021"
+authors = ["LuaByte Engineering <support@luabyte.com>", "Arga Astri Bimantara (@arugaz)"]
+description = "Production-grade, high-concurrency Rust web service starter template built on Axum 0.8, Tokio, Tower, and SQLx."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/luabytehq/axum-production-template"
+readme = "README.md"
+keywords = ["axum", "tokio", "sqlx", "tower", "production"]
+categories = ["web-programming::http-server", "asynchronous"]
+
+[dependencies]
+# Web Framework & HTTP Server
+axum = { version = "0.8", features = ["macros"] }
+tokio = { version = "1.40", features = ["full"] }
+tower = { version = "0.5", features = ["util", "timeout", "limit", "load-shed"] }
+tower-http = { version = "0.6", features = ["trace", "compression-full", "cors", "timeout", "request-id", "util"] }
+hyper = { version = "1.4", features = ["full"] }
+
+# Asynchronous Database & Connection Pooling
+sqlx = { version = "0.8", default-features = false, features = [
+    "runtime-tokio",
+    "tls-rustls",
+    "postgres",
+    "macros",
+    "chrono",
+    "uuid"
+] }
+
+# Serialization & Deserialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Request Validation
+validator = { version = "0.19", features = ["derive"] }
+
+# Observability, Logging & Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Configuration & Environment
+dotenvy = "0.15"
+
+# Error Handling & Utilities
+thiserror = "2.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.10", features = ["v4", "serde"] }
+
+# Optional memory allocator to prevent fragmentation (Unix)
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+tikv-jemallocator = { version = "0.6", optional = true }
+
+[features]
+default = []
+jemalloc = ["dep:tikv-jemallocator"]
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
